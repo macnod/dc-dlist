@@ -1,0 +1,72 @@
+#+title: DC-DLIST
+* Overview
+The DC-DLIST package provides a simple, doubly-linked list via the
+dlist and dlist-node classes.  Here are some examples of how to use
+dlists:
+
+#+begin_src lisp
+(let ((dlist (make-instance 'dlist)))
+  (push-tail dlist 3)
+  (push-tail dlist 4)
+  (push-tail dlist 5)
+  (push-head dlist 2)
+  (push-head dlist 1)
+  (push-head dlist 0)
+  (list :list (to-list dlist)
+        :head (peek-head dlist)
+        :tail (peek-tail dlist)
+        :len (len dlist)))
+;; (:list (0 1 2 3 4 5) :head 0 :tail 5 :len 6)
+
+(let ((dlist (from-list '(1 2 3))))
+  (pop-head dlist)
+  (pop-tail dlist)
+  (list :list (to-list dlist)
+        :head (peek-head dlist)
+        :tail (peek-tail dlist)
+        :len (len dlist)))
+;; (:list (2) :head 2 :tail 2 :len 1)
+
+(let* ((dlist (from-list '(1 2 3 4)))
+       (node (node-at dlist 1)))
+  (delete-node-at dlist 2) ;; delete the node with value 3
+  (delete-node dlist node) ;; deletet he node with value 2
+  (list :list (to-list dlist)
+        :head (peek-head dlist)
+        :tail (peek-tail dlist)
+        :len (len dlist)))
+;; (:list (1 4) :head 1 :tail 4 :len 2)
+
+#+end_src
+
+* Function Reference
+** at
+   =(at dlist index)=
+*** Synopsis
+    Returns the value associated with the node at the given index.  For example,
+    if you have a dlist called =d= with the values ='(1 2 3)= and you call
+    =(at d 0)=, you'll get the value 1.
+*** Parameters
+**** dlist
+     An object of type dlist.
+**** index
+     An integer that is a zero-based index to the node in dlist.
+*** Details
+    If the index you provide is outside of the range of the dlist, this function
+    returns the value =nil=.  If the dlist object is not a dlist or if the index
+    is not a number, the call generates an error.  If the index is a number that
+    can't evaluate to an integer, then the function returns =nil=.
+** copy
+   =(copy dlist)=
+*** Synopsis
+    Returns a copy of the dlist.  For example, to get a copy of dlist =a= called
+    =b=, you can use the code like =(let ((b (copy a))) ...=.
+*** Parameters
+**** dlist
+     An object of type dlist.
+*** Details
+    This function creates a whole new copy of the original dlist, such that if 
+    you delete a node from the original dlist, the copy is not affected.
+    However, the function does not create deep copies of the values associated
+    with the original nodes.  If you're values are objects, then the new list
+    contains references to to same objects that the original list referenced.
