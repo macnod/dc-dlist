@@ -1,7 +1,7 @@
 #+title: DC-DLIST
 * Overview
 The DC-DLIST package provides a simple, doubly-linked list via the
-dlist and dlist-node classes.  Here are some examples of how to use
+=dlist= and =dlist-node= classes.  Here are some examples of how to use
 dlists:
 
 #+begin_src lisp
@@ -44,7 +44,7 @@ dlists:
    =(at dlist index)=
 *** Synopsis
     Returns the value associated with the node at the given index.  For example,
-    if you have a dlist called =d= with the values ='(1 2 3)= and you call
+    if you have a dlist called =d= with the values =(1 2 3)= and you call
     =(at d 0)=, you'll get the value 1.
 *** Parameters
 **** dlist
