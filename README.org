@@ -1,8 +1,8 @@
 #+title: DC-DLIST
- * [[#Overview]]
- * [[#Function Reference]]
-   * [[at]]
-   * [[copy]]
+ * [[#Overview][Overview]]
+ * [[#Function Reference][Function Reference]]
+   * [[#at][at]]
+   * [[#copy][copy]]
    * [[delete-node]]
    * [[delete-node-at]]
    * [[dlist ]]
