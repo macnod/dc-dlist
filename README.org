@@ -1,6 +1,6 @@
 #+title: DC-DLIST
- * [[#Overview][Overview]]
- * [[#Function Reference][Function Reference]]
+ * [[#overview][Overview]]
+ * [[#function-reference][Function Reference]]
    * [[#at][at]]
    * [[#copy][copy]]
    * [[#delete-node][delete-node]]
