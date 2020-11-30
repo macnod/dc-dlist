@@ -106,11 +106,17 @@
               (len dlist) (1+ (len dlist))))))
 
 (defmethod delete-node ((dlist dlist) (node-to-delete dlist-node))
-  (cond ((null (prev node-to-delete)) (pop-head dlist))
-        ((null (next node-to-delete)) (pop-tail dlist))
-        (t (setf (next (prev node-to-delete)) (next node-to-delete)
-                 (prev (next node-to-delete)) (prev node-to-delete)
-                 (len dlist) (1- (len dlist))))))
+  (if (loop for node = (head dlist) then (next node) 
+           while node
+           never (equal node node-to-delete))
+      nil
+      (cond ((null (prev node-to-delete)) (pop-head dlist))
+            ((null (next node-to-delete)) (pop-tail dlist))
+            (t (let ((value (value node-to-delete)))
+                 (setf (next (prev node-to-delete)) (next node-to-delete)
+                       (prev (next node-to-delete)) (prev node-to-delete)
+                       (len dlist) (1- (len dlist)))
+                 value)))))
 
 (defmethod delete-node-at ((dlist dlist) (index integer))
   (loop with deleted = nil and value = nil
@@ -121,7 +127,7 @@
        (setf value (value node))
        (delete-node dlist node) 
        (setf deleted t)
-     finally (return value)))
+     finally (return (when deleted value))))
 
 (defun from-list (list)
   (loop with dlist = (make-instance 'dlist)

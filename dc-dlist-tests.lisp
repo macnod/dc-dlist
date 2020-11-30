@@ -4,7 +4,7 @@
 (defpackage :dc-dlist-tests (:use :cl :prove))
 (in-package :dc-dlist-tests)
 
-(plan 33)
+(plan 35)
 
 (let ((dlist (dc-dlist::from-list '(1 2 3))))
   (is (dc-dlist::to-list dlist) '(1 2 3))
@@ -37,7 +37,16 @@
     (is (dc-dlist::at dlist 1) 1.5 "second element is now 1.5")
     (dc-dlist::delete-node dlist even-value-node)
     (is (dc-dlist::to-list dlist) '(1 1.5 3)
-        "list looks right after deleting the node with the even value")))
+        "list looks right after deleting the node with the even value")
+    (ok (not (dc-dlist::delete-node dlist (make-instance 'dc-dlist::dlist-node
+                                                         :prev nil
+                                                         :next nil
+                                                         :value 9)))
+        "deleting a non-existing node from a dlist returns nil")))
+
+(ok (not (let ((dlist (dc-dlist::from-list '(1 2 3))))
+           (dc-dlist::delete-node-at dlist 5)))
+    "delete-node-at returns nil when it sees an index that is out of range.")
   
 (ok (loop with dlist = (make-instance 'dc-dlist::dlist)
        for a from 1 to 100 do (dc-dlist::push-tail dlist a)

@@ -1,5 +1,24 @@
 #+title: DC-DLIST
-#+options: toc:3
+ * [[Overview]]
+ * [[Function Reference]]
+   * [[at]]
+   * [[copy]]
+   * [[delete-node]]
+   * [[delete-node-at]]
+   * [[dlist ]]
+   * [[dlist-node]]
+   * [[find-first-node]]
+   * [[from-list]]
+   * [[insert-before-node]]
+   * [[node-at]]
+   * [[peek-head ]]
+   * [[peek-tail ]]
+   * [[pop-head ]]
+   * [[pop-tail ]]
+   * [[push-head ]]
+   * [[push-tail ]]
+   * [[to-list]]
+
 
 * Overview
 The DC-DLIST package provides a simple, doubly-linked list via the
@@ -72,3 +91,73 @@ dlists:
     However, the function does not create deep copies of the values associated
     with the original nodes.  If you're values are objects, then the new list
     contains references to to same objects that the original list referenced.
+** delete-node
+   =(delete-node dlist dlist-node)=
+*** Synopsis
+    Deletes the given dlist-node from dlist and returns the value associated
+    with the deleted node.
+    #+begin_src lisp
+    (let* ((dlist (from-list '(1 2 3)))
+           (node (node-at dlist 1))) ;; The node with the value 2
+      (delete-node dlist node)
+      (list :list (to-list dlist)))
+    ;; (:list (1 3))
+    #+end_src
+*** Parameters
+**** dlist
+     An object of type dlist.
+**** dlist-node
+     An object of type dlist-node.
+*** Details
+    If =dlist-node= doesn't exist in =dlist=, this function returns nil.
+** delete-node-at
+   =(delete-node-at dlist index)=
+*** Synopsis
+    Deletes the node at the given index from dlist and returns value associated
+    with the deleted node.
+    #+begin_src lisp
+    (let ((dlist (from-list '(1 2 3))))
+      (delete-node-at dlist 1)
+      (list :list (to-list dlist)))
+    ;; (:list 1 3)
+    #+end_src
+*** Parameters
+**** dlist
+     An object of type dlist.
+**** index
+     A zero-based index to the dlist-node object to be deleted in dlist.
+*** Details
+    If the index is out of range, this function deletes nothing and returns nil.
+** find-first-node
+   =(find-first-node dlist value)=
+   Finds and returns the first node in dlist that has a value that is equal to 
+   the given value.  If no such node is found, this function returns nil.
+*** Parameters
+**** dlist
+     An object of type dlist.
+**** value
+     Any object that can be compared with the value of a node using =equal=.
+*** Details
+    This function returns a node, not a value.  To obtain the value from the 
+    node, you can use the =value= function.
+** from-list
+   =(from-list some-list)=
+   Returns a dlist object that contains nodes with the values in the given list.
+*** Parameters
+**** some-list
+     A standard Common Lisp list containing any values.
+*** Details
+    This function creates a new dlist object, then iterates through the given list
+    calling the =push-tail= method to add each element to the dlist.  The function
+    returns the new dlist.  The list you provide can be empty, in which case this
+    function retruns an empty dlist, which is equivalent to calling
+    =(make-instance 'dlist)=.
+** insert-before-node
+** node-at
+** peek-head 
+** peek-tail 
+** pop-head 
+** pop-tail 
+** push-head 
+** push-tail 
+** to-list
