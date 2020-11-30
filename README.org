@@ -5,8 +5,6 @@
    * [[#copy][copy]]
    * [[#delete-node][delete-node]]
    * [[#delete-node-at][delete-node-at]]
-   * [[#dlist][dlist]]
-   * [[#dlist-node][dlist-node]]
    * [[#find-first-node][find-first-node]]
    * [[#from-list][from-list]]
    * [[#insert-before-node][insert-before-node]]
