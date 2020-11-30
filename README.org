@@ -1,4 +1,6 @@
 #+title: DC-DLIST
+#+options: toc:3
+
 * Overview
 The DC-DLIST package provides a simple, doubly-linked list via the
 =dlist= and =dlist-node= classes.  Here are some examples of how to use
