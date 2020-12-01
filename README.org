@@ -84,6 +84,15 @@ dlists:
    =(contains-node dlist dlist-node)=
 *** Synopsis
     Returns true if the given dlist-node object exists in the given dlist object.
+
+    #+begin_src lisp
+    ;; This returns (t nil)
+    (let* ((dlist (from-list '(0 11 22 33 44)))
+           (existing-node (find-first-node dlist (lambda (v) (= v 22))))
+           (non-existing-node (make-instance 'dlist-node :value 123)))
+      (list (contains-node dlist existing-node)
+            (contains-node dlist non-existing-node)))
+    #+end_src
 *** Parameters
 **** dlist
      An object of type dlist.
@@ -95,8 +104,15 @@ dlists:
 ** copy
    =(copy dlist)=
 *** Synopsis
-    Returns a copy of the dlist.  For example, to get a copy of dlist =a= called
-    =b=, you can use the code like =(let ((b (copy a))) ...=.
+    Returns a copy of the dlist.  
+    #+begin_src lisp
+    ;; This returns (:at-first t :then nil)
+    (let* ((dlist-1 (from-list '(1 2 3)))
+           (dlist-2 (copy dlist-1)))
+      (list :at-first (equal (to-list dlist-1) (to-list dlist-2))
+            :then (progn (pop-head dlist-1)
+                         (equal (to-list dlist-1) (to-list dlist-2)))))
+    #+end_src
 *** Parameters
 **** dlist
      An object of type dlist.
