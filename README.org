@@ -63,9 +63,13 @@ dlists:
 ** at
    =(at dlist index)=
 *** Synopsis
-    Returns the value associated with the node at the given index.  For example,
-    if you have a dlist called =d= with the values =(1 2 3)= and you call
-    =(at d 0)=, you'll get the value 1.
+    Returns the value associated with the node at the given index.
+
+    #+begin_src lisp
+    ;; This returns 22
+    (let ((dlist (from-list '(0 11 22 33 44))))
+      (at dlist 2))
+    #+end_src
 *** Parameters
 **** dlist
      An object of type dlist.
