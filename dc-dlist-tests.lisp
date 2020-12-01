@@ -4,7 +4,7 @@
 (defpackage :dc-dlist-tests (:use :cl :prove))
 (in-package :dc-dlist-tests)
 
-(plan 35)
+(plan 36)
 
 (let ((dlist (dc-dlist::from-list '(1 2 3))))
   (is (dc-dlist::to-list dlist) '(1 2 3))
@@ -31,6 +31,8 @@
   (is (dc-dlist::peek-tail dlist) 3 "peek-tail now 3")
   (let ((even-value-node (dc-dlist::find-first-node dlist #'evenp)))
     (is (dc-dlist::value even-value-node) 2 "first even value is 2")
+    (ok (dc-dlist::contains-node dlist even-value-node)
+        "dlist contains given node")
     (dc-dlist::insert-before-node dlist even-value-node 1.5)
     (is (dc-dlist::to-list dlist) '(1 1.5 2 3)
         "insertion of 1.5 near midpoint succeeds")

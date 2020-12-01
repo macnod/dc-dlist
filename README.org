@@ -2,6 +2,7 @@
  * [[#overview][Overview]]
  * [[#function-reference][Function Reference]]
    * [[#at][at]]
+   * [[#contains-node][contains-node]]
    * [[#copy][copy]]
    * [[#delete-node][delete-node]]
    * [[#delete-node-at][delete-node-at]]
@@ -75,6 +76,18 @@ dlists:
     returns the value =nil=.  If the dlist object is not a dlist or if the index
     is not a number, the call generates an error.  If the index is a number that
     can't evaluate to an integer, then the function returns =nil=.
+** contains-node
+   =(contains-node dlist dlist-node)=
+*** Synopsis
+    Returns true if the given dlist-node object exists in the given dlist object.
+*** Parameters
+**** dlist
+     An object of type dlist.
+**** dlist-node
+     An object of type dlist-node.
+*** Details
+    If the dlist-node object doesn't exist among the nodes in dlist, this function
+    returns =nil=.
 ** copy
    =(copy dlist)=
 *** Synopsis
@@ -107,7 +120,8 @@ dlists:
 **** dlist-node
      An object of type dlist-node.
 *** Details
-    If =dlist-node= doesn't exist in =dlist=, this function returns nil.
+    If =dlist-node= doesn't exist in =dlist=, this function deletes nothing and 
+    returns =nil=.
 ** delete-node-at
    =(delete-node-at dlist index)=
 *** Synopsis
@@ -127,20 +141,24 @@ dlists:
 *** Details
     If the index is out of range, this function deletes nothing and returns nil.
 ** find-first-node
-   =(find-first-node dlist value)=
-   Finds and returns the first node in dlist that has a value that is equal to 
-   the given value.  If no such node is found, this function returns nil.
+   =(find-first-node dlist comparison-function)=
+*** Synopsys
+    Finds and returns the first node in dlist where calling =comparison-function=
+    with the node's value returns true.  If no such node exists, this value returns
+    nil.
 *** Parameters
 **** dlist
      An object of type dlist.
-**** value
-     Any object that can be compared with the value of a node using =equal=.
+**** comparison-function
+     A function that takes a single parameter and evaluates to true when called
+     with the value of the desired node.
 *** Details
     This function returns a node, not a value.  To obtain the value from the 
     node, you can use the =value= function.
 ** from-list
    =(from-list some-list)=
-   Returns a dlist object that contains nodes with the values in the given list.
+*** Synopsis
+    Returns a dlist object that contains nodes with the values in the given list.
 *** Parameters
 **** some-list
      A standard Common Lisp list containing any values.
@@ -151,11 +169,109 @@ dlists:
     function retruns an empty dlist, which is equivalent to calling
     =(make-instance 'dlist)=.
 ** insert-before-node
+   =(insert-before-node dlist dlist-node value)=
+*** Synopsis
+    Creates a new dlist-node object using the given value and inserts that object
+    in the given dlist at the position immediately preceding the position of the 
+    given dlist-node object.  In other words, this function inserts a value in
+    front of the given dlist-node.  This function returns the dlist object upon
+    success and =nil= on failure.
+*** Parameters
+**** dlist
+     An object of type dlist.
+**** dlist-node
+     An object of type dlist-node.
+**** value
+     A value of any type.  This function will wrap the value in a dlist-node
+     object and insert the object into the give dlist.
+*** Details
+    You can get get a reference to the dlist-node object that this function
+    requires by calling =find-first-node=.  Alternatively, if you can use
+    the =insert-before-value= function instead of the =insert-before-node=
+    function, as you can use a value instead of a node with the former function.
+    If the given dlist-node object doesn't exist in the given dlist object,
+    this function makes no insertion and returns =nil=.
 ** node-at
+   =(node-at dlist index)=
+*** Synopsis
+    Retrieves the =dlist-node= object at the given =index= in the given =dlist=.
+    Returns a =dlist-node= object upon success, or =nil= if =index= is out of 
+    bounds.
+*** Parameters
+**** dlist
+     An object of type dlist.
+**** index
+     An integer or a number that can evaluate to an integer. This integer is the
+     zero-based index of the =dlist-node= object you want to retrieve.
+*** Details
+    If the index is out of bounds, this function returns =nil=.
 ** peek-head 
-** peek-tail 
+   =(peek-head dlist)=
+*** Synopsis
+    Returns the value of the first node in =dlist= wtihout changing =dlist= in any way.
+*** Parameters
+**** dlist
+     An object of type dlist.
+*** Details
+    If =dlist= is empty, this function return =nil=.
+** peek-tail
+   =(peek-tail dlist)=
+*** Synopsis
+    Returns the value of the last node in =dlist= without changing =dlist= in any way.
+*** Parameters
+**** dlist
+     An object of type dlist.
+*** Details
+    If =dlist= is empty, this function returns =nil=.
 ** pop-head 
+   =(pop-head dlist)=
+*** Synopsis
+    Removes the first node from =dlist= and retuns the value of that node, decreasing
+    the length of =dlist= by 1.
+*** Parameters
+**** dlist
+     An object of type dlist.
+*** Details
+    If =dlist= is empty, this function makes no changes and returns nil.
 ** pop-tail 
+   =(pop-tail dlist)=
+*** Synopsis
+    Removes the last node from =dlist= and retuns the value of that node, decreasing
+    the length of =dlist= by 1.
+*** Parameters
+**** dlist
+     An object of type dlist.
+*** Details
+    If =dlist= is empty, this function makes no changes and returns nil.
 ** push-head 
-** push-tail 
+   =(push-head dlist value)=
+*** Synopsis
+    Creates a new dlist-node object using the given value and inserts the new object
+    at the beginning of =dlist=, increasing the length of =dlist= by 1.
+*** Parameters
+**** dlist
+     An object of type dlist.
+**** value
+     A value of any type.
+** push-tail
+   =(push-tail dlist value)=
+*** Synopsis
+    Creates a new dlist-node object using the given value and appends the new object
+    to the end of =dlist=, increasing the length of =dlist= by 1.
+*** Parameters
+**** dlist
+     An object of type dlist.
+**** value
+     A value of any type.
 ** to-list
+   =(to-list dlist)=
+*** Synopsis
+    Returns a regular Common Lisp list containing the values in the nodes of =dlist=,
+    in the same order as the they appear in =dlist=.
+    #+begin_src lisp
+    ;; returns t
+    (equal (to-list (from-list '(1 2 3))) '(1 2 3))
+    #+end_src
+*** Parameters
+**** dlist
+     An object of type dlist.

@@ -95,21 +95,19 @@
      when (= index i) do (return node)))
 
 (defmethod insert-before-node ((dlist dlist) (existing-node dlist-node) (value t))
-  (if (or (null existing-node) (null (prev existing-node)))
-      (push-head dlist value)
-      (let ((new-node (make-instance 'dlist-node 
-                                     :value value
-                                     :prev (prev existing-node)
-                                     :next existing-node)))
-        (setf (next (prev new-node)) new-node
-              (prev (next new-node)) new-node
-              (len dlist) (1+ (len dlist))))))
+  (when (contains-node dlist existing-node)
+    (if (or (null existing-node) (null (prev existing-node)))
+        (push-head dlist value)
+        (let ((new-node (make-instance 'dlist-node 
+                                       :value value
+                                       :prev (prev existing-node)
+                                       :next existing-node)))
+          (setf (next (prev new-node)) new-node
+                (prev (next new-node)) new-node
+                (len dlist) (1+ (len dlist)))))))
 
 (defmethod delete-node ((dlist dlist) (node-to-delete dlist-node))
-  (if (loop for node = (head dlist) then (next node) 
-           while node
-           never (equal node node-to-delete))
-      nil
+  (when (contains-node dlist node-to-delete)
       (cond ((null (prev node-to-delete)) (pop-head dlist))
             ((null (next node-to-delete)) (pop-tail dlist))
             (t (let ((value (value node-to-delete)))
@@ -146,3 +144,6 @@
      do (push-tail copy-of-dlist (value node))
      finally (return copy-of-dlist)))
        
+(defmethod contains-node ((dlist dlist) (node dlist-node))
+  (loop for current-node = (head dlist) then (next current-node)
+     while current-node thereis (equal current-node node)))
