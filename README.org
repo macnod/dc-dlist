@@ -166,6 +166,12 @@ dlists:
     Finds and returns the first node in dlist where calling =comparison-function=
     with the node's value returns true.  If no such node exists, this value returns
     nil.
+
+    #+begin_src lisp
+    ;; Returns 2
+    (let ((dlist (from-list '(1 2 3))))
+      (value (find-first-node dlist #'evenp)))
+    #+end_src
 *** Parameters
 **** dlist
      An object of type dlist.
