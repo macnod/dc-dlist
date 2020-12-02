@@ -3,10 +3,12 @@
   (:export 
 
    at
+   contains-node
    copy
    delete-node
    delete-node-at
    dlist 
+   dlist-node
    find-first-node
    from-list
    insert-before-node

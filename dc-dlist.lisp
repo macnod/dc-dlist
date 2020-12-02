@@ -147,3 +147,4 @@
 (defmethod contains-node ((dlist dlist) (node dlist-node))
   (loop for current-node = (head dlist) then (next current-node)
      while current-node thereis (equal current-node node)))
+
