@@ -4,7 +4,7 @@
 (defpackage :dc-dlist-tests (:use :cl :prove))
 (in-package :dc-dlist-tests)
 
-(plan 37)
+(plan 38)
 
 (let ((dlist (dc-dlist::from-list '(1 2 3))))
   (is (dc-dlist::to-list dlist) '(1 2 3))
@@ -110,5 +110,11 @@
   (isnt (dc-dlist::to-list dlist)
         (dc-dlist::to-list dlist-copy)
         "after popping original, elements not the same as elements in copy"))
+
+(let* ((list '(3 2 4 1 5))
+       (sorted-list (sort (copy-list list) #'<))
+       (dlist (dc-dlist::from-list list))
+       (sorted-dlist (dc-dlist::sorted dlist #'<)))
+  (is sorted-list (dc-dlist::to-list sorted-dlist) "sorting works."))
 
 (finalize)

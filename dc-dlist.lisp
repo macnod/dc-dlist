@@ -160,3 +160,5 @@
   (loop for current-node = (head dlist) then (next current-node)
      while current-node thereis (equal current-node node)))
 
+(defmethod sorted ((dlist dlist) (predicate function))
+  (from-list (sort (to-list dlist) (lambda (a b) (funcall predicate a b)))))

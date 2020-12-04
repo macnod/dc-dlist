@@ -11,6 +11,7 @@
    dlist-node
    find-first-node
    from-list
+   insert-after-node
    insert-before-node
    node-at
    peek-head 
@@ -19,6 +20,7 @@
    pop-tail 
    push-head 
    push-tail 
+   sorted
    to-list
 
 ))
