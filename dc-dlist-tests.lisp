@@ -4,7 +4,7 @@
 (defpackage :dc-dlist-tests (:use :cl :prove))
 (in-package :dc-dlist-tests)
 
-(plan 36)
+(plan 37)
 
 (let ((dlist (dc-dlist::from-list '(1 2 3))))
   (is (dc-dlist::to-list dlist) '(1 2 3))
@@ -36,9 +36,11 @@
     (dc-dlist::insert-before-node dlist even-value-node 1.5)
     (is (dc-dlist::to-list dlist) '(1 1.5 2 3)
         "insertion of 1.5 near midpoint succeeds")
+    (dc-dlist::insert-after-node dlist even-value-node 2.5)
+    (is (dc-dlist::to-list dlist) '(1 1.5 2 2.5 3))
     (is (dc-dlist::at dlist 1) 1.5 "second element is now 1.5")
     (dc-dlist::delete-node dlist even-value-node)
-    (is (dc-dlist::to-list dlist) '(1 1.5 3)
+    (is (dc-dlist::to-list dlist) '(1 1.5 2.5 3)
         "list looks right after deleting the node with the even value")
     (ok (not (dc-dlist::delete-node dlist (make-instance 'dc-dlist::dlist-node
                                                          :prev nil

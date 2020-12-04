@@ -96,12 +96,24 @@
 
 (defmethod insert-before-node ((dlist dlist) (existing-node dlist-node) (value t))
   (when (contains-node dlist existing-node)
-    (if (or (null existing-node) (null (prev existing-node)))
+    (if (null (prev existing-node))
         (push-head dlist value)
         (let ((new-node (make-instance 'dlist-node 
                                        :value value
                                        :prev (prev existing-node)
                                        :next existing-node)))
+          (setf (next (prev new-node)) new-node
+                (prev (next new-node)) new-node
+                (len dlist) (1+ (len dlist)))))))
+
+(defmethod insert-after-node ((dlist dlist) (existing-node dlist-node) (value t))
+  (when (contains-node dlist existing-node)
+    (if (null (next existing-node))
+        (push-tail dlist value)
+        (let ((new-node (make-instance 'dlist-node
+                                       :value value
+                                       :prev existing-node
+                                       :next (next existing-node))))
           (setf (next (prev new-node)) new-node
                 (prev (next new-node)) new-node
                 (len dlist) (1+ (len dlist)))))))
