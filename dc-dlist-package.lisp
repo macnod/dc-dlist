@@ -1,8 +1,9 @@
 (defpackage :dc-dlist
-  (:use :cl)
+  (:use :cl :sb-thread)
   (:export 
 
    at
+   clear
    contains-node
    copy
    delete-node
