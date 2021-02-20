@@ -1,7 +1,7 @@
 (in-package :dc-dlist)
 
 (defclass dlist-node ()
-  ((value :accessor value :initarg :value :initform nil)
+  ((payload :accessor payload :initarg :payload :initform nil)
    (prev :accessor prev :initarg :prev :initform nil)
    (next :accessor next :initarg :next :initform nil)))
 
@@ -16,10 +16,10 @@
   (setf (lock1 dlist) (make-mutex))
   (setf (lock2 dlist) (make-mutex)))
 
-(defmethod push-head ((dlist dlist) (value t))
+(defmethod push-head ((dlist dlist) (payload t))
   (with-mutex ((lock1 dlist))
     (let ((old-head (head dlist))
-          (new-head (make-instance 'dlist-node :value value)))
+          (new-head (make-instance 'dlist-node :payload payload)))
       (if old-head
           (progn
             (setf (head dlist) new-head
@@ -32,10 +32,10 @@
                 (tail dlist) new-head
                 (len dlist) 1)))))
 
-(defmethod push-tail ((dlist dlist) (value t))
+(defmethod push-tail ((dlist dlist) (payload t))
   (with-mutex ((lock1 dlist))
     (let ((old-tail (tail dlist))
-          (new-tail (make-instance 'dlist-node :value value)))
+          (new-tail (make-instance 'dlist-node :payload payload)))
       (if old-tail
           (progn
             (setf (next old-tail) new-tail
@@ -52,7 +52,7 @@
   (with-mutex ((lock1 dlist))
     (if (zerop (len dlist))
         nil
-        (let ((value (value (head dlist))))
+        (let ((payload (payload (head dlist))))
           (case (len dlist)
             (1 (setf (head dlist) nil
                      (tail dlist) nil
@@ -63,13 +63,13 @@
             (otherwise (setf (head dlist) (next (head dlist))
                              (prev (head dlist)) nil
                              (len dlist) (1- (len dlist)))))
-          value))))
+          payload))))
 
 (defmethod pop-tail ((dlist dlist))
   (with-mutex ((lock1 dlist))
     (if (zerop (len dlist))
         nil
-        (let ((value (value (tail dlist))))
+        (let ((payload (payload (tail dlist))))
           (case (len dlist)
             (1 (setf (head dlist) nil
                      (tail dlist) nil
@@ -80,29 +80,29 @@
             (otherwise (setf (tail dlist) (prev (tail dlist)))
                        (setf (next (tail dlist)) nil
                              (len dlist) (1- (len dlist)))))
-          value))))
+          payload))))
 
 (defmethod peek-head ((dlist dlist))
   (with-mutex ((lock1 dlist))
     (if (zerop (len dlist))
         nil
-        (value (head dlist)))))
+        (payload (head dlist)))))
 
 (defmethod peek-tail ((dlist dlist))
   (with-mutex ((lock1 dlist))
     (if (zerop (len dlist))
         nil
-        (value (tail dlist)))))
+        (payload (tail dlist)))))
 
 (defmethod find-first-node ((dlist dlist) (comparison-function function))
   (with-mutex ((lock1 dlist))
     (loop for node = (head dlist) then (next node)
        while node
-       when (funcall comparison-function (value node)) do (return node))))
+       when (funcall comparison-function (payload node)) do (return node))))
 
 (defmethod at ((dlist dlist) (index number))
   (let ((node (node-at dlist index)))
-    (when node (value node))))
+    (when node (payload node))))
 
 (defmethod node-at ((dlist dlist) (index number))
   (with-mutex ((lock1 dlist))
@@ -111,28 +111,28 @@
        for i = 0 then (1+ i)
        when (= index i) do (return node))))
 
-(defmethod insert-before-node ((dlist dlist) (existing-node dlist-node) (value t))
+(defmethod insert-before-node ((dlist dlist) (existing-node dlist-node) (payload t))
   (with-mutex ((lock2 dlist))
     (when (contains-node dlist existing-node)
       (if (null (prev existing-node))
-          (push-head dlist value)
+          (push-head dlist payload)
           (with-mutex ((lock1 dlist))
             (let ((new-node (make-instance 'dlist-node 
-                                           :value value
+                                           :payload payload
                                            :prev (prev existing-node)
                                            :next existing-node)))
               (setf (next (prev new-node)) new-node
                     (prev (next new-node)) new-node
                     (len dlist) (1+ (len dlist)))))))))
 
-(defmethod insert-after-node ((dlist dlist) (existing-node dlist-node) (value t))
+(defmethod insert-after-node ((dlist dlist) (existing-node dlist-node) (payload t))
   (with-mutex ((lock2 dlist))
     (when (contains-node dlist existing-node)
       (if (null (next existing-node))
-          (push-tail dlist value)
+          (push-tail dlist payload)
           (with-mutex ((lock1 dlist))
             (let ((new-node (make-instance 'dlist-node
-                                           :value value
+                                           :payload payload
                                            :prev existing-node
                                            :next (next existing-node))))
               (setf (next (prev new-node)) new-node
@@ -145,22 +145,22 @@
       (cond ((null (prev node-to-delete)) (pop-head dlist))
             ((null (next node-to-delete)) (pop-tail dlist))
             (t (with-mutex ((lock1 dlist))
-                 (let ((value (value node-to-delete)))
+                 (let ((payload (payload node-to-delete)))
                    (setf (next (prev node-to-delete)) (next node-to-delete)
                          (prev (next node-to-delete)) (prev node-to-delete)
                          (len dlist) (1- (len dlist)))
-                   value)))))))
+                   payload)))))))
 
 (defmethod delete-node-at ((dlist dlist) (index integer))
-  (loop with deleted = nil and value = nil
+  (loop with deleted = nil and payload = nil
      for i = 0 then (1+ i)
      for node = (head dlist) then (next node)
      while (and node (not deleted))
      when (= i index) do 
-       (setf value (value node))
+       (setf payload (payload node))
        (delete-node dlist node) 
        (setf deleted t)
-     finally (return (when deleted value))))
+     finally (return (when deleted payload))))
 
 (defun from-list (list)
   (loop with dlist = (make-instance 'dlist)
@@ -171,14 +171,14 @@
   (with-mutex ((lock1 dlist))
     (loop for node = (head dlist) then (next node)
        while node
-       collect (value node))))
+       collect (payload node))))
 
 (defmethod copy ((dlist dlist))
   (with-mutex ((lock1 dlist))
     (loop with copy-of-dlist = (make-instance 'dlist)
        for node = (head dlist) then (next node)
        while node 
-       do (push-tail copy-of-dlist (value node))
+       do (push-tail copy-of-dlist (payload node))
        finally (return copy-of-dlist))))
 
 (defmethod contains-node ((dlist dlist) (node dlist-node))
