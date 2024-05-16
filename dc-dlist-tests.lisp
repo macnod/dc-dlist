@@ -1,4 +1,4 @@
-;; Run these tests with 
+;; Run these tests with
 ;;   (prove:run #P"/home/macnod/common-lisp/dc-dlist/dc-dlist-tests.lisp")
 
 (in-package :cl-user)
@@ -7,7 +7,7 @@
 (defpackage :dc-dlist-tests (:use :cl :prove))
 (in-package :dc-dlist-tests)
 
-(plan 47)
+(plan 51)
 
 (let ((dlist (dc-dlist::from-list '(1 2 3))))
   (is (dc-dlist::to-list dlist) '(1 2 3))
@@ -67,41 +67,41 @@
 (ok (not (let ((dlist (dc-dlist::from-list '(1 2 3))))
            (dc-dlist::delete-node-at dlist 5)))
     "delete-node-at returns nil when it sees an index that is out of range.")
-  
+
 (ok (loop with dlist = (make-instance 'dc-dlist::dlist)
-       for a from 1 to 100 do (dc-dlist::push-tail dlist a)
-       always (and (= (dc-dlist::len dlist) a)
-                   (= (dc-dlist::peek-head dlist) 1)
-                   (= (dc-dlist::peek-tail dlist) a)))
+          for a from 1 to 100 do (dc-dlist::push-tail dlist a)
+          always (and (= (dc-dlist::len dlist) a)
+                      (= (dc-dlist::peek-head dlist) 1)
+                      (= (dc-dlist::peek-tail dlist) a)))
     "length of list adjusts correctly with push-tail")
 
 (ok (loop with dlist = (make-instance 'dc-dlist::dlist)
-       for a from 1 to 100 do (dc-dlist::push-head dlist a)
-       always (and (= (dc-dlist::len dlist) a)
-                   (= (dc-dlist::peek-head dlist) a)
-                   (= (dc-dlist::peek-tail dlist) 1)))
+          for a from 1 to 100 do (dc-dlist::push-head dlist a)
+          always (and (= (dc-dlist::len dlist) a)
+                      (= (dc-dlist::peek-head dlist) a)
+                      (= (dc-dlist::peek-tail dlist) 1)))
     "length of list adjusts correctly with push-head")
 
 (ok (let ((dlist (dc-dlist::from-list '(1 2 3))))
       (dc-dlist::delete-node-at dlist 1)
       (loop for node = (dc-dlist::head dlist) then (dc-dlist::next node)
-         while node
-         always (oddp (dc-dlist::value node))))
+            while node
+            always (oddp (dc-dlist::value node))))
     "index-based node deletion works")
 
 (ok (let* ((list (loop for a from 1 to 100 collect a))
            (dlist (dc-dlist::from-list list)))
       (loop for node = (dc-dlist::find-first-node dlist #'oddp)
-         while node do (dc-dlist::delete-node dlist node))
+            while node do (dc-dlist::delete-node dlist node))
       (loop for value in (dc-dlist::to-list dlist)
-           always (evenp value)))
+            always (evenp value)))
     "node-based node deletion works")
 
 (let ((dlist (dc-dlist::from-list '(1 2 3))))
   (ok (and (null (dc-dlist::delete-node-at dlist -1))
            (null (dc-dlist::delete-node-at dlist 3)))
       "deleting nodes by index using out-of-bound index returns null")
-  (is (dc-dlist::delete-node-at dlist 0) 1 
+  (is (dc-dlist::delete-node-at dlist 0) 1
       "deleting first node, with value 1, returns 1")
   (is (dc-dlist::delete-node-at dlist 0) 2
       "deleting first node, now with value 2, returns 2")
@@ -113,8 +113,8 @@
   (dc-dlist::push-tail dlist 3)
   (dc-dlist::push-head dlist 1)
   (ok (loop for a from 1 to 3
-         for node = (dc-dlist::head dlist) then (dc-dlist::next node)
-         always (= (dc-dlist::value node) a))
+            for node = (dc-dlist::head dlist) then (dc-dlist::next node)
+            always (= (dc-dlist::value node) a))
       "adding values to a list that was previously emptied out works."))
 (let* ((dlist (dc-dlist::from-list '(1 2 3)))
        (dlist-copy (dc-dlist::copy dlist)))
@@ -132,5 +132,18 @@
        (dlist (dc-dlist::from-list list))
        (sorted-dlist (dc-dlist::sorted dlist #'<)))
   (is sorted-list (dc-dlist::to-list sorted-dlist) "sorting works."))
+
+(loop
+  with list = '(0 1 2 3)
+  with dlist = (dc-dlist::from-list list)
+  for value in list
+  for node = (dc-dlist::head dlist) then (dc-dlist::next node)
+  for node-index = (dc-dlist::node-index node)
+  do (is node-index value
+         (if (< value 3)
+             (format nil "node-index returns ~d for the ~:r node"
+                     node-index (1+ value))
+             (format nil "node-index returns ~d for the last node"
+                     node-index))))
 
 (finalize)

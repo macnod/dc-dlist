@@ -1,6 +1,6 @@
 (defpackage :dc-dlist
   (:use :cl :sb-thread)
-  (:export 
+  (:export
 
    at
    clear
@@ -8,7 +8,7 @@
    copy
    delete-node
    delete-node-at
-   dlist 
+   dlist
    dlist-node
    find-first-node
    from-list
@@ -18,16 +18,17 @@
    len
    next
    node-at
-   peek-head 
-   peek-tail 
-   pop-head 
+   node-index
+   peek-head
+   peek-tail
+   pop-head
    pop-tail
    prev
-   push-head 
-   push-tail 
+   push-head
+   push-tail
    sorted
    tail
    to-list
    value
 
-))
+   ))
