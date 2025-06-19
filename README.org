@@ -1,24 +1,4 @@
 #+title: DC-DLIST
- * [[#overview][Overview]]
- * [[#function-reference][Function Reference]]
-   * [[#at][at]]
-   * [[#contains-node][contains-node]]
-   * [[#copy][copy]]
-   * [[#delete-node][delete-node]]
-   * [[#delete-node-at][delete-node-at]]
-   * [[#find-first-node][find-first-node]]
-   * [[#from-list][from-list]]
-   * [[#insert-before-node][insert-before-node]]
-   * [[#node-at][node-at]]
-   * [[#peek-head][peek-head]]
-   * [[#peek-tail][peek-tail]]
-   * [[#pop-head][pop-head]]
-   * [[#pop-tail][pop-tail]]
-   * [[#push-head][push-head]]
-   * [[#push-tail][push-tail]]
-   * [[#to-list][to-list]]
-
-
 * Overview
 The DC-DLIST package provides a simple, doubly-linked list via the
 =dlist= and =dlist-node= classes.  Here are some examples of how to use
