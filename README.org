@@ -40,6 +40,8 @@ dlists:
 #+end_src
 
 * Reference
+* Documentation for `dc-dlist` Package
+
 This document provides detailed documentation for the `dc-dlist` package, which implements a thread-safe, doubly-linked list in Common Lisp. The package defines two primary classes: `dlist` and `dlist-node`, along with associated methods for manipulating the list.
 
 ** Class: `dlist-node`
@@ -99,66 +101,6 @@ Represents a thread-safe, doubly-linked list.
 
 *** Methods
 
-**** `initialize-instance :after ((dlist dlist) &key)`
-
-Initializes the `lock1` and `lock2` slots of a `dlist` instance with mutexes for thread safety.
-
-**** `push-head ((dlist dlist) (value t))`
-
-Pushes `value` to the head of `dlist`.
-
-#+BEGIN_QUOTE
-Push `value` to the head of `dlist`.
-#+END_QUOTE
-
-**** `push-tail ((dlist dlist) (value t))`
-
-Appends `value` to the tail of `dlist`.
-
-#+BEGIN_QUOTE
-Append `value` to the tail of `dlist`.
-#+END_QUOTE
-
-**** `pop-head ((dlist dlist))`
-
-Removes and returns the value of the first node in `dlist`. Returns `nil` if the list is empty.
-
-#+BEGIN_QUOTE
-Remove the first node of `dlist` and return that node's value. If `dlist` has no nodes, this function returns `nil`. If `dlist` has a single node, this function returns that node's value and makes `dlist` empty. If `dlist` has more than one node, then this function removes the first node and returns its value, making the second node of `dlist` the head of `dlist`.
-#+END_QUOTE
-
-**** `pop-tail ((dlist dlist))`
-
-Removes and returns the value of the last node in `dlist`. Returns `nil` if the list is empty.
-
-#+BEGIN_QUOTE
-Remove the last node of `dlist` and return that node's value. If `dlist` has no nodes, this function returns `nil`. If `dlist` has a single node, this function returns that node's value and makes `dlist` empty. If `dlist` has more than one node, then this function removes the last node and returns its value, making the second node of `dlist` the head of `dlist`.
-#+END_QUOTE
-
-**** `peek-head ((dlist dlist))`
-
-Returns the value of the first node in `dlist` without modifying the list. Returns `nil` if the list is empty.
-
-#+BEGIN_QUOTE
-Returns the value of the first node in `dlist`. If `dlist` is empty, this function returns `nil`. This function does not change `dlist`.
-#+END_QUOTE
-
-**** `peek-tail ((dlist dlist))`
-
-Returns the value of the last node in `dlist` without modifying the list. Returns `nil` if the list is empty.
-
-#+BEGIN_QUOTE
-Returns the value of the last node in `dlist`. If `dlist` is empty, this function returns `nil`. This function does not change `dlist`.
-#+END_QUOTE
-
-**** `find-first-node ((dlist dlist) (comparison-function function))`
-
-Returns the first node in `dlist` where `comparison-function` returns `t` when applied to the node's value. Returns `nil` if no such node exists or the list is empty.
-
-#+BEGIN_QUOTE
-Returns the first node in `dlist` where calling `comparison-function` with the value of the node returns `t`. If `dlist` is empty or no node in `dlist` has a value that causes `comparison-function` to evaluate to `t`, this function returns `nil`.
-#+END_QUOTE
-
 **** `at ((dlist dlist) (index number))`
 
 Returns the value of the node at `index` (zero-based) in `dlist`. Returns `nil` if the index is out of bounds.
@@ -167,36 +109,28 @@ Returns the value of the node at `index` (zero-based) in `dlist`. Returns `nil` 
 Returns the value of the `dlist` node at `index`, where `index` is zero-based. Calling this function with a value of 0 for `index` is the same thing as calling the `peek-head` function.
 #+END_QUOTE
 
-**** `node-at ((dlist dlist) (index number))`
+**** `clear ((dlist dlist))`
 
-Returns the node at `index` (zero-based) in `dlist`. Returns `nil` if the index is out of bounds or the list is empty.
+Empties `dlist` by removing all nodes.
 
 #+BEGIN_QUOTE
-Returns the node of `dlist` at `index`, where `index` is zero-based. A value of 0 for `index` returns the first node in `dlist`. If `dlist` is empty, this function returns `nil`.
+Makes `dlist` empty, discarding any nodes it might contain.
 #+END_QUOTE
 
-**** `node-index ((node dlist-node))`
+**** `contains-node ((dlist dlist) (node dlist-node))`
 
-Returns the zero-based index of `node` in its list, or `nil` if the node is not in a list.
+Returns `t` if `dlist` contains `node`, otherwise `nil`.
 
 #+BEGIN_QUOTE
-(No explicit documentation provided in the code.)
+Returns a boolean value indicating if `dlist` contains `node`.
 #+END_QUOTE
 
-**** `insert-before-node ((dlist dlist) (existing-node dlist-node) (value t))`
+**** `copy ((dlist dlist))`
 
-Inserts a new node with `value` immediately before `existing-node` in `dlist`. Returns the new length of `dlist`. No insertion occurs if `existing-node` is not in `dlist`.
-
-#+BEGIN_QUOTE
-Creates a node with `value` and inserts the new node into `dlist`, at a location immediately preceding `existing-node`. If `dlist` does not contain `existing-node`, no insertion occurs. This function returns the new length of `dlist` after the insertion.
-#+END_QUOTE
-
-**** `insert-after-node ((dlist dlist) (existing-node dlist-node) (value t))`
-
-Inserts a new node with `value` immediately after `existing-node` in `dlist`. Returns the new length of `dlist`. No insertion occurs if `existing-node` is not in `dlist`.
+Creates a shallow copy of `dlist` with new nodes but shared value references.
 
 #+BEGIN_QUOTE
-Creates a node with `value` and inserts it into `dlist`, at a location immediately following `existing-node`. If `dlist` does not contain `existing-node`, no insertion occurs. This function returns the new length of `dlist` after the insertion.
+Creates a copy of `dlist`. The nodes in the copy are new objects. However, if the values in the original nodes are object references, the copy will point to the same values.
 #+END_QUOTE
 
 **** `delete-node ((dlist dlist) (node-to-delete dlist-node))`
@@ -215,6 +149,14 @@ Deletes the node at `index` in `dlist` and returns its value. Returns `nil` if `
 Deletes the `dlist` node at `index` and returns the value of the deleted node. If `index` is out of bounds for `dlist` (`index` < 0 or `index` >= `(len dlist)`), then no deletion occurs and this function returns `nil`.
 #+END_QUOTE
 
+**** `find-first-node ((dlist dlist) (comparison-function function))`
+
+Returns the first node in `dlist` where `comparison-function` returns `t` when applied to the node's value. Returns `nil` if no such node exists or the list is empty.
+
+#+BEGIN_QUOTE
+Returns the first node in `dlist` where calling `comparison-function` with the value of the node returns `t`. If `dlist` is empty or no node in `dlist` has a value that causes `comparison-function` to evaluate to `t`, this function returns `nil`.
+#+END_QUOTE
+
 **** `from-list (list)`
 
 Creates a new `dlist` instance populated with the elements of `list`.
@@ -223,28 +165,88 @@ Creates a new `dlist` instance populated with the elements of `list`.
 Creates a `dlist` doubly-linked list from `list`.
 #+END_QUOTE
 
-**** `to-list ((dlist dlist))`
+**** `initialize-instance :after ((dlist dlist) &key)`
 
-Converts `dlist` into a standard Lisp list.
+Initializes the `lock1` and `lock2` slots of a `dlist` instance with mutexes for thread safety.
+
+**** `insert-after-node ((dlist dlist) (existing-node dlist-node) (value t))`
+
+Inserts a new node with `value` immediately after `existing-node` in `dlist`. Returns the new length of `dlist`. No insertion occurs if `existing-node` is not in `dlist`.
 
 #+BEGIN_QUOTE
-Converts `dlist` into a standard Lisp list.
+Creates a node with `value` and inserts it into `dlist`, at a location immediately following `existing-node`. If `dlist` does not contain `existing-node`, no insertion occurs. This function returns the new length of `dlist` after the insertion.
 #+END_QUOTE
 
-**** `copy ((dlist dlist))`
+**** `insert-before-node ((dlist dlist) (existing-node dlist-node) (value t))`
 
-Creates a shallow copy of `dlist` with new nodes but shared value references.
+Inserts a new node with `value` immediately before `existing-node` in `dlist`. Returns the new length of `dlist`. No insertion occurs if `existing-node` is not in `dlist`.
 
 #+BEGIN_QUOTE
-Creates a copy of `dlist`. The nodes in the copy are new objects. However, if the values in the original nodes are object references, the copy will point to the same values.
+Creates a node with `value` and inserts the new node into `dlist`, at a location immediately preceding `existing-node`. If `dlist` does not contain `existing-node`, no insertion occurs. This function returns the new length of `dlist` after the insertion.
 #+END_QUOTE
 
-**** `contains-node ((dlist dlist) (node dlist-node))`
+**** `node-at ((dlist dlist) (index number))`
 
-Returns `t` if `dlist` contains `node`, otherwise `nil`.
+Returns the node at `index` (zero-based) in `dlist`. Returns `nil` if the index is out of bounds or the list is empty.
 
 #+BEGIN_QUOTE
-Returns a boolean value indicating if `dlist` contains `node`.
+Returns the node of `dlist` at `index`, where `index` is zero-based. A value of 0 for `index` returns the first node in `dlist`. If `dlist` is empty, this function returns `nil`.
+#+END_QUOTE
+
+**** `node-index ((node dlist-node))`
+
+Returns the zero-based index of `node` in its list, or `nil` if the node is not in a list.
+
+#+BEGIN_QUOTE
+(No explicit documentation provided in the code.)
+#+END_QUOTE
+
+**** `peek-head ((dlist dlist))`
+
+Returns the value of the first node in `dlist` without modifying the list. Returns `nil` if the list is empty.
+
+#+BEGIN_QUOTE
+Returns the value of the first node in `dlist`. If `dlist` is empty, this function returns `nil`. This function does not change `dlist`.
+#+END_QUOTE
+
+**** `peek-tail ((dlist dlist))`
+
+Returns the value of the last node in `dlist` without modifying the list. Returns `nil` if the list is empty.
+
+#+BEGIN_QUOTE
+Returns the value of the last node in `dlist`. If `dlist` is empty, this function returns `nil`. This function does not change `dlist`.
+#+END_QUOTE
+
+**** `pop-head ((dlist dlist))`
+
+Removes and returns the value of the first node in `dlist`. Returns `nil` if the list is empty.
+
+#+BEGIN_QUOTE
+Remove the first node of `dlist` and return that node's value. If `dlist` has no nodes, this function returns `nil`. If `dlist` has a single node, this function returns that node's value and makes `dlist` empty. If `dlist` has more than one node, then this function removes the first node and returns its value, making the second node of `dlist` the head of `dlist`.
+#+END_QUOTE
+
+**** `pop-tail ((dlist dlist))`
+
+Removes and returns the value of the last node in `dlist`. Returns `nil` if the list is empty.
+
+#+BEGIN_QUOTE
+Remove the last node of `dlist` and return that node's value. If `dlist` has no nodes, this function returns `nil`. If `dlist` has a single node, this function returns that node's value and makes `dlist` empty. If `dlist` has more than one node, then this function removes the last node and returns its value, making the second node of `dlist` the head of `dlist`.
+#+END_QUOTE
+
+**** `push-head ((dlist dlist) (value t))`
+
+Pushes `value` to the head of `dlist`.
+
+#+BEGIN_QUOTE
+Push `value` to the head of `dlist`.
+#+END_QUOTE
+
+**** `push-tail ((dlist dlist) (value t))`
+
+Appends `value` to the tail of `dlist`.
+
+#+BEGIN_QUOTE
+Append `value` to the tail of `dlist`.
 #+END_QUOTE
 
 **** `sorted ((dlist dlist) (predicate function))`
@@ -255,10 +257,10 @@ Returns a new `dlist` with nodes sorted according to `predicate`.
 Returns a copy of `dlist` that has its nodes sorted according to the application of `predicate` to the nodes' values. `Predicate` is called with the values of the nodes in `dlist` and works exactly like the `predicate` parameter of the standard `sort` function in Lisp.
 #+END_QUOTE
 
-**** `clear ((dlist dlist))`
+**** `to-list ((dlist dlist))`
 
-Empties `dlist` by removing all nodes.
+Converts `dlist` into a standard Lisp list.
 
 #+BEGIN_QUOTE
-Makes `dlist` empty, discarding any nodes it might contain.
+Converts `dlist` into a standard Lisp list.
 #+END_QUOTE
