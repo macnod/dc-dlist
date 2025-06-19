@@ -1,0 +1,65 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - '*'
+  pull_request:
+    branches:
+      - '*'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Cache system packages
+        id: cache-apt
+        uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+          packages: automake build-essential curl git gnupg libcurl4-openssl-dev zlib1g-dev
+          version: 1.0
+
+      - name: Set up PATH
+        run: |
+          echo "PATH=$HOME/.local/bin:$PATH" >> $GITHUB_ENV
+
+      - name: Cache Roswell
+        id: cache-dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.local/bin/ros
+            ~/.local/etc/roswell
+            ~/.roswell
+            ~/.cache
+          key: ${{ runner.os }}-dependencies-${{ hashFiles('.github/workflows/dependencies.txt') }}-${{ github.run_id }}
+          restore-keys: |
+            ${{ runner.os }}-dependencies-${{ hashFiles('.github/workflows/dependencies.txt') }}-
+            ${{ runner.os }}-dependencies-
+
+      - name: Verify Roswell paths
+        run: |
+          if command -v ros >/dev/null 2>&1; then
+            echo "Roswell found at $(which ros)"
+          else
+            echo "Roswell not found"
+          fi
+
+      - name: Run setup and tests
+        run: |
+          # Only run full setup if cache was not hit
+          if command -v ros >/dev/null 2>&1; then
+            echo "Cache hit, skipping Roswell installation"
+          else
+            echo "Cache miss, running full setup"
+            make -f .github/workflows/Makefile setup
+          fi
+          make -f .github/workflows/Makefile test
