@@ -39,245 +39,226 @@ dlists:
 
 #+end_src
 
-* Function Reference
-** at
-   =(at dlist index)=
-*** Synopsis
-    Returns the value associated with the node at the given index.
+* Reference
+This document provides detailed documentation for the `dc-dlist` package, which implements a thread-safe, doubly-linked list in Common Lisp. The package defines two primary classes: `dlist` and `dlist-node`, along with associated methods for manipulating the list.
 
-    #+begin_src lisp
-    ;; This returns 22
-    (let ((dlist (from-list '(0 11 22 33 44))))
-      (at dlist 2))
-    #+end_src
-*** Parameters
-**** dlist
-     An object of type dlist.
-**** index
-     An integer that is a zero-based index to the node in dlist.
-*** Details
-    If the index you provide is outside of the range of the dlist, this function
-    returns the value =nil=.  If the dlist object is not a dlist or if the index
-    is not a number, the call generates an error.  If the index is a number that
-    can't evaluate to an integer, then the function returns =nil=.
-** contains-node
-   =(contains-node dlist dlist-node)=
-*** Synopsis
-    Returns true if the given dlist-node object exists in the given dlist object.
+** Class: `dlist-node`
 
-    #+begin_src lisp
-    ;; This returns (t nil)
-    (let* ((dlist (from-list '(0 11 22 33 44)))
-           (existing-node (find-first-node dlist (lambda (v) (= v 22))))
-           (non-existing-node (make-instance 'dlist-node :value 123)))
-      (list (contains-node dlist existing-node)
-            (contains-node dlist non-existing-node)))
-    #+end_src
-*** Parameters
-**** dlist
-     An object of type dlist.
-**** dlist-node
-     An object of type dlist-node.
-*** Details
-    If the dlist-node object doesn't exist among the nodes in dlist, this function
-    returns =nil=.
-** copy
-   =(copy dlist)=
-*** Synopsis
-    Returns a copy of the dlist.  
-    #+begin_src lisp
-    ;; This returns (:at-first t :then nil)
-    (let* ((dlist-1 (from-list '(1 2 3)))
-           (dlist-2 (copy dlist-1)))
-      (list :at-first (equal (to-list dlist-1) (to-list dlist-2))
-            :then (progn (pop-head dlist-1)
-                         (equal (to-list dlist-1) (to-list dlist-2)))))
-    #+end_src
-*** Parameters
-**** dlist
-     An object of type dlist.
-*** Details
-    This function creates a whole new copy of the original dlist, such that if 
-    you delete a node from the original dlist, the copy is not affected.
-    However, the function does not create deep copies of the values associated
-    with the original nodes.  If you're values are objects, then the new list
-    contains references to to same objects that the original list referenced.
-** delete-node
-   =(delete-node dlist dlist-node)=
-*** Synopsis
-    Deletes the given dlist-node from dlist and returns the value associated
-    with the deleted node.
-    #+begin_src lisp
-    (let* ((dlist (from-list '(1 2 3)))
-           (node (node-at dlist 1))) ;; The node with the value 2
-      (delete-node dlist node)
-      (list :list (to-list dlist)))
-    ;; (:list (1 3))
-    #+end_src
-*** Parameters
-**** dlist
-     An object of type dlist.
-**** dlist-node
-     An object of type dlist-node.
-*** Details
-    If =dlist-node= doesn't exist in =dlist=, this function deletes nothing and 
-    returns =nil=.
-** delete-node-at
-   =(delete-node-at dlist index)=
-*** Synopsis
-    Deletes the node at the given index from dlist and returns value associated
-    with the deleted node.
-    #+begin_src lisp
-    (let ((dlist (from-list '(1 2 3))))
-      (delete-node-at dlist 1)
-      (list :list (to-list dlist)))
-    ;; (:list 1 3)
-    #+end_src
-*** Parameters
-**** dlist
-     An object of type dlist.
-**** index
-     A zero-based index to the dlist-node object to be deleted in dlist.
-*** Details
-    If the index is out of range, this function deletes nothing and returns nil.
-** find-first-node
-   =(find-first-node dlist comparison-function)=
-*** Synopsys
-    Finds and returns the first node in dlist where calling =comparison-function=
-    with the node's value returns true.  If no such node exists, this value returns
-    nil.
+Represents a node in a thread-safe, doubly-linked list.
 
-    #+begin_src lisp
-    ;; Returns 2
-    (let ((dlist (from-list '(1 2 3))))
-      (value (find-first-node dlist #'evenp)))
-    #+end_src
-*** Parameters
-**** dlist
-     An object of type dlist.
-**** comparison-function
-     A function that takes a single parameter and evaluates to true when called
-     with the value of the desired node.
-*** Details
-    This function returns a node, not a value.  To obtain the value from the 
-    node, you can use the =value= function.
-** from-list
-   =(from-list some-list)=
-*** Synopsis
-    Returns a dlist object that contains nodes with the values in the given list.
-*** Parameters
-**** some-list
-     A standard Common Lisp list containing any values.
-*** Details
-    This function creates a new dlist object, then iterates through the given list
-    calling the =push-tail= method to add each element to the dlist.  The function
-    returns the new dlist.  The list you provide can be empty, in which case this
-    function retruns an empty dlist, which is equivalent to calling
-    =(make-instance 'dlist)=.
-** insert-before-node
-   =(insert-before-node dlist dlist-node value)=
-*** Synopsis
-    Creates a new dlist-node object using the given value and inserts that object
-    in the given dlist at the position immediately preceding the position of the 
-    given dlist-node object.  In other words, this function inserts a value in
-    front of the given dlist-node.  This function returns the dlist object upon
-    success and =nil= on failure.
-*** Parameters
-**** dlist
-     An object of type dlist.
-**** dlist-node
-     An object of type dlist-node.
-**** value
-     A value of any type.  This function will wrap the value in a dlist-node
-     object and insert the object into the give dlist.
-*** Details
-    You can get get a reference to the dlist-node object that this function
-    requires by calling =find-first-node=.  Alternatively, if you can use
-    the =insert-before-value= function instead of the =insert-before-node=
-    function, as you can use a value instead of a node with the former function.
-    If the given dlist-node object doesn't exist in the given dlist object,
-    this function makes no insertion and returns =nil=.
-** node-at
-   =(node-at dlist index)=
-*** Synopsis
-    Retrieves the =dlist-node= object at the given =index= in the given =dlist=.
-    Returns a =dlist-node= object upon success, or =nil= if =index= is out of 
-    bounds.
-*** Parameters
-**** dlist
-     An object of type dlist.
-**** index
-     An integer or a number that can evaluate to an integer. This integer is the
-     zero-based index of the =dlist-node= object you want to retrieve.
-*** Details
-    If the index is out of bounds, this function returns =nil=.
-** peek-head 
-   =(peek-head dlist)=
-*** Synopsis
-    Returns the value of the first node in =dlist= wtihout changing =dlist= in any way.
-*** Parameters
-**** dlist
-     An object of type dlist.
-*** Details
-    If =dlist= is empty, this function return =nil=.
-** peek-tail
-   =(peek-tail dlist)=
-*** Synopsis
-    Returns the value of the last node in =dlist= without changing =dlist= in any way.
-*** Parameters
-**** dlist
-     An object of type dlist.
-*** Details
-    If =dlist= is empty, this function returns =nil=.
-** pop-head 
-   =(pop-head dlist)=
-*** Synopsis
-    Removes the first node from =dlist= and retuns the value of that node, decreasing
-    the length of =dlist= by 1.
-*** Parameters
-**** dlist
-     An object of type dlist.
-*** Details
-    If =dlist= is empty, this function makes no changes and returns nil.
-** pop-tail 
-   =(pop-tail dlist)=
-*** Synopsis
-    Removes the last node from =dlist= and retuns the value of that node, decreasing
-    the length of =dlist= by 1.
-*** Parameters
-**** dlist
-     An object of type dlist.
-*** Details
-    If =dlist= is empty, this function makes no changes and returns nil.
-** push-head 
-   =(push-head dlist value)=
-*** Synopsis
-    Creates a new dlist-node object using the given value and inserts the new object
-    at the beginning of =dlist=, increasing the length of =dlist= by 1.
-*** Parameters
-**** dlist
-     An object of type dlist.
-**** value
-     A value of any type.
-** push-tail
-   =(push-tail dlist value)=
-*** Synopsis
-    Creates a new dlist-node object using the given value and appends the new object
-    to the end of =dlist=, increasing the length of =dlist= by 1.
-*** Parameters
-**** dlist
-     An object of type dlist.
-**** value
-     A value of any type.
-** to-list
-   =(to-list dlist)=
-*** Synopsis
-    Returns a regular Common Lisp list containing the values in the nodes of =dlist=,
-    in the same order as the they appear in =dlist=.
-    #+begin_src lisp
-    ;; returns t
-    (equal (to-list (from-list '(1 2 3))) '(1 2 3))
-    #+end_src
-*** Parameters
-**** dlist
-     An object of type dlist.
+*** Slots
+
+- *value*
+  - Accessor: `value`
+  - Initarg: `:value`
+  - Initform: `nil`
+  - Description: Stores the value of the node.
+
+- *prev*
+  - Accessor: `prev`
+  - Initarg: `:prev`
+  - Initform: `nil`
+  - Description: Points to the previous node in the list.
+
+- *next*
+  - Accessor: `next`
+  - Initarg: `:next`
+  - Initform: `nil`
+  - Description: Points to the next node in the list.
+
+** Class: `dlist`
+
+Represents a thread-safe, doubly-linked list.
+
+*** Slots
+
+- *head*
+  - Accessor: `head`
+  - Initform: `nil`
+  - Description: Points to the first node in the list.
+
+- *tail*
+  - Accessor: `tail`
+  - Initform: `nil`
+  - Description: Points to the last node in the list.
+
+- *len*
+  - Accessor: `len`
+  - Initform: `0`
+  - Description: Stores the number of nodes in the list.
+
+- *lock1*
+  - Accessor: `lock1`
+  - Initform: `nil`
+  - Description: A mutex for thread-safe operations, initialized in `initialize-instance`.
+
+- *lock2*
+  - Accessor: `lock2`
+  - Initform: `nil`
+  - Description: A secondary mutex for thread-safe operations, initialized in `initialize-instance`.
+
+*** Methods
+
+**** `initialize-instance :after ((dlist dlist) &key)`
+
+Initializes the `lock1` and `lock2` slots of a `dlist` instance with mutexes for thread safety.
+
+**** `push-head ((dlist dlist) (value t))`
+
+Pushes `value` to the head of `dlist`.
+
+#+BEGIN_QUOTE
+Push `value` to the head of `dlist`.
+#+END_QUOTE
+
+**** `push-tail ((dlist dlist) (value t))`
+
+Appends `value` to the tail of `dlist`.
+
+#+BEGIN_QUOTE
+Append `value` to the tail of `dlist`.
+#+END_QUOTE
+
+**** `pop-head ((dlist dlist))`
+
+Removes and returns the value of the first node in `dlist`. Returns `nil` if the list is empty.
+
+#+BEGIN_QUOTE
+Remove the first node of `dlist` and return that node's value. If `dlist` has no nodes, this function returns `nil`. If `dlist` has a single node, this function returns that node's value and makes `dlist` empty. If `dlist` has more than one node, then this function removes the first node and returns its value, making the second node of `dlist` the head of `dlist`.
+#+END_QUOTE
+
+**** `pop-tail ((dlist dlist))`
+
+Removes and returns the value of the last node in `dlist`. Returns `nil` if the list is empty.
+
+#+BEGIN_QUOTE
+Remove the last node of `dlist` and return that node's value. If `dlist` has no nodes, this function returns `nil`. If `dlist` has a single node, this function returns that node's value and makes `dlist` empty. If `dlist` has more than one node, then this function removes the last node and returns its value, making the second node of `dlist` the head of `dlist`.
+#+END_QUOTE
+
+**** `peek-head ((dlist dlist))`
+
+Returns the value of the first node in `dlist` without modifying the list. Returns `nil` if the list is empty.
+
+#+BEGIN_QUOTE
+Returns the value of the first node in `dlist`. If `dlist` is empty, this function returns `nil`. This function does not change `dlist`.
+#+END_QUOTE
+
+**** `peek-tail ((dlist dlist))`
+
+Returns the value of the last node in `dlist` without modifying the list. Returns `nil` if the list is empty.
+
+#+BEGIN_QUOTE
+Returns the value of the last node in `dlist`. If `dlist` is empty, this function returns `nil`. This function does not change `dlist`.
+#+END_QUOTE
+
+**** `find-first-node ((dlist dlist) (comparison-function function))`
+
+Returns the first node in `dlist` where `comparison-function` returns `t` when applied to the node's value. Returns `nil` if no such node exists or the list is empty.
+
+#+BEGIN_QUOTE
+Returns the first node in `dlist` where calling `comparison-function` with the value of the node returns `t`. If `dlist` is empty or no node in `dlist` has a value that causes `comparison-function` to evaluate to `t`, this function returns `nil`.
+#+END_QUOTE
+
+**** `at ((dlist dlist) (index number))`
+
+Returns the value of the node at `index` (zero-based) in `dlist`. Returns `nil` if the index is out of bounds.
+
+#+BEGIN_QUOTE
+Returns the value of the `dlist` node at `index`, where `index` is zero-based. Calling this function with a value of 0 for `index` is the same thing as calling the `peek-head` function.
+#+END_QUOTE
+
+**** `node-at ((dlist dlist) (index number))`
+
+Returns the node at `index` (zero-based) in `dlist`. Returns `nil` if the index is out of bounds or the list is empty.
+
+#+BEGIN_QUOTE
+Returns the node of `dlist` at `index`, where `index` is zero-based. A value of 0 for `index` returns the first node in `dlist`. If `dlist` is empty, this function returns `nil`.
+#+END_QUOTE
+
+**** `node-index ((node dlist-node))`
+
+Returns the zero-based index of `node` in its list, or `nil` if the node is not in a list.
+
+#+BEGIN_QUOTE
+(No explicit documentation provided in the code.)
+#+END_QUOTE
+
+**** `insert-before-node ((dlist dlist) (existing-node dlist-node) (value t))`
+
+Inserts a new node with `value` immediately before `existing-node` in `dlist`. Returns the new length of `dlist`. No insertion occurs if `existing-node` is not in `dlist`.
+
+#+BEGIN_QUOTE
+Creates a node with `value` and inserts the new node into `dlist`, at a location immediately preceding `existing-node`. If `dlist` does not contain `existing-node`, no insertion occurs. This function returns the new length of `dlist` after the insertion.
+#+END_QUOTE
+
+**** `insert-after-node ((dlist dlist) (existing-node dlist-node) (value t))`
+
+Inserts a new node with `value` immediately after `existing-node` in `dlist`. Returns the new length of `dlist`. No insertion occurs if `existing-node` is not in `dlist`.
+
+#+BEGIN_QUOTE
+Creates a node with `value` and inserts it into `dlist`, at a location immediately following `existing-node`. If `dlist` does not contain `existing-node`, no insertion occurs. This function returns the new length of `dlist` after the insertion.
+#+END_QUOTE
+
+**** `delete-node ((dlist dlist) (node-to-delete dlist-node))`
+
+Deletes `node-to-delete` from `dlist` and returns its value. No deletion occurs if `node-to-delete` is not in `dlist`.
+
+#+BEGIN_QUOTE
+Deletes `node-to-delete` from `dlist` and returns the value of the deleted node. If `node-to-delete` does not exist in `dlist`, no deletion occurs.
+#+END_QUOTE
+
+**** `delete-node-at ((dlist dlist) (index integer))`
+
+Deletes the node at `index` in `dlist` and returns its value. Returns `nil` if `index` is out of bounds.
+
+#+BEGIN_QUOTE
+Deletes the `dlist` node at `index` and returns the value of the deleted node. If `index` is out of bounds for `dlist` (`index` < 0 or `index` >= `(len dlist)`), then no deletion occurs and this function returns `nil`.
+#+END_QUOTE
+
+**** `from-list (list)`
+
+Creates a new `dlist` instance populated with the elements of `list`.
+
+#+BEGIN_QUOTE
+Creates a `dlist` doubly-linked list from `list`.
+#+END_QUOTE
+
+**** `to-list ((dlist dlist))`
+
+Converts `dlist` into a standard Lisp list.
+
+#+BEGIN_QUOTE
+Converts `dlist` into a standard Lisp list.
+#+END_QUOTE
+
+**** `copy ((dlist dlist))`
+
+Creates a shallow copy of `dlist` with new nodes but shared value references.
+
+#+BEGIN_QUOTE
+Creates a copy of `dlist`. The nodes in the copy are new objects. However, if the values in the original nodes are object references, the copy will point to the same values.
+#+END_QUOTE
+
+**** `contains-node ((dlist dlist) (node dlist-node))`
+
+Returns `t` if `dlist` contains `node`, otherwise `nil`.
+
+#+BEGIN_QUOTE
+Returns a boolean value indicating if `dlist` contains `node`.
+#+END_QUOTE
+
+**** `sorted ((dlist dlist) (predicate function))`
+
+Returns a new `dlist` with nodes sorted according to `predicate`.
+
+#+BEGIN_QUOTE
+Returns a copy of `dlist` that has its nodes sorted according to the application of `predicate` to the nodes' values. `Predicate` is called with the values of the nodes in `dlist` and works exactly like the `predicate` parameter of the standard `sort` function in Lisp.
+#+END_QUOTE
+
+**** `clear ((dlist dlist))`
+
+Empties `dlist` by removing all nodes.
+
+#+BEGIN_QUOTE
+Makes `dlist` empty, discarding any nodes it might contain.
+#+END_QUOTE
