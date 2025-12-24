@@ -5,38 +5,45 @@ The DC-DLIST package provides a simple, doubly-linked list via the
 dlists:
 
 #+begin_src lisp
-(let ((dlist (make-instance 'dlist)))
-  (push-tail dlist 3)
-  (push-tail dlist 4)
-  (push-tail dlist 5)
-  (push-head dlist 2)
-  (push-head dlist 1)
-  (push-head dlist 0)
-  (list :list (to-list dlist)
-        :head (peek-head dlist)
-        :tail (peek-tail dlist)
-        :len (len dlist)))
-;; (:list (0 1 2 3 4 5) :head 0 :tail 5 :len 6)
+  (let ((dlist (make-instance 'dlist)))
+    (push-tail dlist 3)
+    (push-tail dlist 4)
+    (push-tail dlist 5)
+    (push-head dlist 2)
+    (push-head dlist 1)
+    (push-head dlist 0)
+    (list :list (to-list dlist)
+          :head (peek-head dlist)
+          :tail (peek-tail dlist)
+          :len (len dlist)))
+  ;; (:list (0 1 2 3 4 5) :head 0 :tail 5 :len 6)
 
-(let ((dlist (from-list '(1 2 3))))
-  (pop-head dlist)
-  (pop-tail dlist)
-  (list :list (to-list dlist)
-        :head (peek-head dlist)
-        :tail (peek-tail dlist)
-        :len (len dlist)))
-;; (:list (2) :head 2 :tail 2 :len 1)
+  (let ((dlist (from-list '(1 2 3))))
+    (pop-head dlist)
+    (pop-tail dlist)
+    (list :list (to-list dlist)
+          :head (peek-head dlist)
+          :tail (peek-tail dlist)
+          :len (len dlist)))
+  ;; (:list (2) :head 2 :tail 2 :len 1)
 
-(let* ((dlist (from-list '(1 2 3 4)))
-       (node (node-at dlist 1)))
-  (delete-node-at dlist 2) ;; delete the node with value 3
-  (delete-node dlist node) ;; deletet he node with value 2
-  (list :list (to-list dlist)
-        :head (peek-head dlist)
-        :tail (peek-tail dlist)
-        :len (len dlist)))
-;; (:list (1 4) :head 1 :tail 4 :len 2)
+  (let* ((dlist (from-list '(1 2 3 4)))
+         (node (node-at dlist 1)))
+    (delete-node-at dlist 2) ;; delete the node with value 3
+    (delete-node dlist node) ;; deletet he node with value 2
+    (list :list (to-list dlist)
+          :head (peek-head dlist)
+          :tail (peek-tail dlist)
+          :len (len dlist)))
+  ;; (:list (1 4) :head 1 :tail 4 :len 2)
+#+end_src
+* Tests
+Tests are in dc-dlist-tests.lisp. You can run them as follows:
 
+#+begin_src sh
+  make install-roswell       # Only if Roswell is not already installed
+  make install-dependencies  # Only if FiveAM is not already installed
+  make test
 #+end_src
 
 * Reference

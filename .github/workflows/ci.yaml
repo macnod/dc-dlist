@@ -7,10 +7,13 @@ on:
   pull_request:
     branches:
       - '*'
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
-  cancel-in-progress: true
+  workflow_dispatch:
+    inputs:
+      disable-cache:
+        description: 'Disable all caching'
+        required: false
+        default: 'false'
+        type: boolean
 
 jobs:
   test:
@@ -20,46 +23,32 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Cache system packages
-        id: cache-apt
-        uses: awalsh128/cache-apt-pkgs-action@latest
+      - name: Setup Roswell
+        uses: macnod/roswell-action@v2
         with:
-          packages: automake build-essential curl git gnupg libcurl4-openssl-dev zlib1g-dev
-          version: 1.0
+          sbcl-version: 2.5.10
+          roswell-version: 23.10.14.114
 
-      - name: Set up PATH
-        run: |
-          echo "PATH=$HOME/.local/bin:$PATH" >> $GITHUB_ENV
-
-      - name: Cache Roswell
-        id: cache-dependencies
+      - name: Cache dependencies
         uses: actions/cache@v4
+        id: depcache
         with:
           path: |
-            ~/.local/bin/ros
-            ~/.local/etc/roswell
-            ~/.roswell
-            ~/.cache
-          key: ${{ runner.os }}-dependencies-${{ hashFiles('.github/workflows/dependencies.txt') }}-${{ github.run_id }}
+            ~/.roswell/local-projects
+            ~/.cache/common-lisp/sbcl-2.5.10.roswell-linux-x64/home/runner/.roswell
+          key: dependencies-${{ runner.os }}-${{ hashFiles('~/.roswell/local-projects/**', '~/.cache/common-lisp/sbcl-2.5.10.roswell-linux-x64/home/runner/.roswell/**') }}
           restore-keys: |
-            ${{ runner.os }}-dependencies-${{ hashFiles('.github/workflows/dependencies.txt') }}-
-            ${{ runner.os }}-dependencies-
+            dependencies-${{ runner.os }}-
 
-      - name: Verify Roswell paths
-        run: |
-          if command -v ros >/dev/null 2>&1; then
-            echo "Roswell found at $(which ros)"
-          else
-            echo "Roswell not found"
-          fi
+      - name: Cache hit for dependencies
+        if: steps.depcache.outputs.cache-hit == 'true'
+        shell: bash
+        run: echo "✅ Cache hit for dependencies"
 
-      - name: Run setup and tests
-        run: |
-          # Only run full setup if cache was not hit
-          if command -v ros >/dev/null 2>&1; then
-            echo "Cache hit, skipping Roswell installation"
-          else
-            echo "Cache miss, running full setup"
-            make -f .github/workflows/Makefile setup
-          fi
-          make -f .github/workflows/Makefile test
+      - name: Install dependencies
+        if: steps.depcache.outputs.cache-hit != 'true'
+        shell: bash
+        run: make install-dependencies
+
+      - name: Run tests
+        run: make test
