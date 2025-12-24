@@ -41,12 +41,18 @@ jobs:
             dependencies-${{ runner.os }}-
 
       - name: Cache hit for dependencies
-        if: steps.depcache.outputs.cache-hit == 'true'
+        if: >-
+          github.event.inputs.disable-cache == 'true' ||
+          github.event.inputs.disable-cache == true ||
+          steps.depcache.outputs.cache-hit != 'true'
         shell: bash
         run: echo "✅ Cache hit for dependencies"
 
       - name: Install dependencies
-        if: steps.depcache.outputs.cache-hit != 'true'
+        if: >-
+          github.event.inputs.disable-cache == 'true' ||
+          github.event.inputs.disable-cache == true ||
+          steps.depcache.outputs.cache-hit != 'true'
         shell: bash
         run: make install-dependencies
 
